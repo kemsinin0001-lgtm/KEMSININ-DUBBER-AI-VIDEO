@@ -1,0 +1,47 @@
+# Environments and secrets
+.env
+.env.local
+.venv/
+env/
+venv/
+ENV/
+
+# Node dependencies and build
+node_modules/
+dist/
+build/
+www/
+electron/dist/
+electron/node_modules/
+
+# Python cache & data
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Audio/Video processing temp and output
+temp/
+uploads/
+output/
+*.mp4
+*.mp3
+*.wav
+*.srt
+
+# Android build outputs and caches
+.gradle/
+android/build/
+android/app/build/
+android/.gradle/
+*.apk
+*.aab
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.agent-cache/
+.agents/
+mcp_config.json
+skills-lock.json

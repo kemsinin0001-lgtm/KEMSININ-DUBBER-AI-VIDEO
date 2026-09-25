@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KEMSININ DUBBER - AI Video Voice Over Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0a0c14;
+      --bg-card: rgba(18, 22, 36, 0.85);
+      --bg-card-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00f2fe;
+      --accent-purple: #9b51e0;
+      --accent-pink: #ff2a85;
+      --accent-gold: #fbbf24;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', 'Kantumruy Pro', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.12), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(155, 81, 224, 0.15), transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(255, 42, 133, 0.08), transparent 40%);
+      background-attachment: fixed;
+    }
+
+    header {
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--bg-card-border);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-pill {
+      font-size: 0.8rem;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    .status-pill.offline {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+    .status-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--border-radius);
+      padding: 1.8rem;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+
+    /* Upload Area */
+    .dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.04);
+      transform: translateY(-2px);
+    }
+    .dropzone-icon {
+      font-size: 2.8rem;
+      filter: drop-shadow(0 4px 10px rgba(0, 242, 254, 0.3));
+    }
+    .dropzone-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .dropzone-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+    .dropzone-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+
+    /* Form Fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      margin-top: 1.3rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, input[type="text"], input[type="range"] {
+      background: rgba(10, 12, 20, 0.8);
+      border: 1px solid var(--bg-card-border);
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+    }
+
+    .btn-group-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      color: #05070f;
+      border: none;
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3);
+    }
+    .btn-action.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(0, 242, 254, 0.45);
+    }
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Progress Box */
+    .progress-box {
+      margin-top: 1.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1.2rem;
+      border-radius: 12px;
+      border: 1px solid var(--bg-card-border);
+      display: none;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .progress-bar-bg {
+      background: rgba(255, 255, 255, 0.08);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Video Player */
+    .preview-player {
+      width: 100%;
+      max-height: 380px;
+      border-radius: 14px;
+      background: #000;
+      border: 1px solid var(--bg-card-border);
+      outline: none;
+    }
+
+    .btn-download-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    .btn-download {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 10px;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-download:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: var(--accent-cyan);
+    }
+
+    /* Timeline Subtitle Editor Styles */
+    .editor-section {
+      grid-column: span 2;
+      margin-top: 1rem;
+    }
+    @media (max-width: 1024px) {
+      .editor-section { grid-column: span 1; }
+    }
+
+    .editor-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--bg-card-border);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .btn-sub-action {
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-sub-action:hover {
+      background: rgba(0, 242, 254, 0.25);
+    }
+
+    .editor-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .editor-card {
+      background: rgba(10, 14, 26, 0.7);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: all 0.2s;
+    }
+    .editor-card.active-playing {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(0, 242, 254, 0.25);
+      background: rgba(0, 242, 254, 0.04);
+    }
+
+    .editor-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .badge-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.12);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .time-range-inputs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .time-input {
+      width: 75px;
+      padding: 4px 8px;
+      font-size: 0.82rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+    }
+
+    .voice-select-mini {
+      padding: 4px 8px;
+      font-size: 0.82rem;
+    }
+
+    .btn-icon {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0.7;
+      margin-left: auto;
+    }
+    .btn-icon:hover { opacity: 1; }
+
+    .editor-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .editor-orig-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .editor-input-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .editor-textarea {
+      flex: 1;
+      background: rgba(5, 7, 12, 0.8);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      resize: vertical;
+      outline: none;
+    }
+    .editor-textarea:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .editor-card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .btn-action-mini {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--bg-card-border);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-action-mini:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="logo-badge">🎙️</div>
+      <div>
+        <div class="brand-title">KEMSININ DUBBER AI STUDIO</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted)">Whisper ASR &bull; Neural Translation &bull; GPT-SoVITS Voice Engine</div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="status-pill" id="sovitsBadge" style="font-size: 0.75rem; border-radius: 8px;">
+        🧬 GPT-SoVITS
+      </div>
+      <div class="status-pill" id="wsStatus">
+        <span class="status-dot"></span>
+        <span>WebSocket Online</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- LEFT PANEL: CONFIG & ACTIONS -->
+    <div class="card">
+      <div class="card-title">
+        <span>⚡</span> <span>1. ជ្រើសរើសវីដេអូ & កំណត់មុខងារ (Config & Upload)</span>
+      </div>
+
+      <!-- Drag & drop area -->
+      <div class="dropzone" id="dropZone">
+        <input type="file" id="fileInput" accept="video/mp4,video/mkv,video/webm,video/quicktime" style="display: none;">
+        <div class="dropzone-icon">📹</div>
+        <div class="dropzone-text">
+          <strong style="color: #fff;">អូសទម្លាក់វីដេអូនៅទីនេះ</strong> ឬចុចដើម្បី Browse
+        </div>
+        <div class="dropzone-btn-group">
+          <button class="dropzone-btn" type="button">ជ្រើសរើសវីដេអូ (Browse)</button>
+          <button class="dropzone-btn" id="btnNativePick" type="button" style="display: none;">Desktop Dialog 🖥️</button>
+        </div>
+        <div id="fileInfo" style="font-size: 0.8rem; color: var(--accent-cyan); margin-top: 4px;"></div>
+      </div>
+
+      <!-- Settings Grid -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Target Language (ភាសាបកប្រែ)</label>
+          <select id="targetLang">
+            <option value="km" selected>🇰🇭 Khmer (ខ្មែរ)</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="zh-CN">🇨🇳 Chinese</option>
+            <option value="th">🇹🇭 Thai</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Voice Persona (សំឡេងបញ្ចេញ)</label>
+          <select id="voiceSelect">
+            <option value="km-KH-SreymomNeural" selected>Khmer - Sreymom (ស្រី / Female)</option>
+            <option value="km-KH-PisethNeural">Khmer - Piseth (ប្រុស / Male)</option>
+            <option value="gpt_sovits">🧬 GPT-SoVITS Voice Clone Engine</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Source Audio Detection</label>
+          <select id="sourceLang">
+            <option value="auto" selected>Auto Detect (សម្គាល់ស្វ័យប្រវត្តិ)</option>
+            <option value="en">English</option>
+            <option value="zh">Chinese</option>
+            <option value="ja">Japanese</option>
+            <option value="th">Thai</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Processing Mode</label>
+          <select id="processMode">
+            <option value="auto" selected>⚡ Auto Full Dubbing</option>
+            <option value="editor">📝 Transcribe & Review First</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-group-actions">
+        <button class="btn-action" id="startDubBtn" disabled>
+          <span>🚀</span> <span>ចាប់ផ្ដើម DUB VIDEO</span>
+        </button>
+        <button class="btn-action secondary" id="transcribeOnlyBtn" disabled>
+          <span>✏️</span> <span>បើក Editor Subtitle</span>
+        </button>
+        <button class="btn-action batch-mode-btn" id="openBatchBtn" onclick="openBatch()" type="button">
+          <span>🌍</span> <span>បំពងច្រើនភាសា (Batch)</span>
+        </button>
+      </div>
+
+      <!-- Processing Status View -->
+      <div class="progress-box" id="progressBox">
+        <div class="progress-header">
+          <span id="progressStatusText">កំពុងរៀបចំ...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: PREVIEW & RESULTS -->
+    <div class="card">
+      <div class="card-title">
+        <span>🎬</span> <span>2. លទ្ធផលវីដេអូ & Studio Player</span>
+      </div>
+
+      <video id="player" class="preview-player" controls playsinline>
+        <source src="" type="video/mp4">
+        Browser របស់អ្នកមិនគាំទ្រ Video Player ទេ។
+      </video>
+
+      <div class="btn-download-group" id="downloadGroup" style="display: none;">
+        <a href="#" id="dlVideo" class="btn-download" download>📥 Download Dubbed Video</a>
+      </div>
+    </div>
+
+    <!-- TIMELINE SUBTITLE EDITOR SECTION -->
+    <div class="card editor-section" id="editorSection" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div class="card-title" style="margin-bottom: 0;">
+          <span>📝</span> <span>3. Subtitle Timeline & Voice Cast Editor</span>
+        </div>
+        <button class="btn-action" id="renderEditedBtn" style="width: auto; padding: 10px 20px; margin-top: 0;">
+          <span>⚡</span> <span>Mix វីដេអូថ្មីជាមួយ Subtitle កែប្រែ</span>
+        </button>
+      </div>
+
+      <div id="editorContainer"></div>
+    </div>
+  </div>
+
+  <!-- Load Subtitle Editor & Main App Controller -->
+  <script src="editor.js"></script>
+  <script src="app.js"></script>
+
+  <!-- ============ UPDATE BANNER ============ -->
+  <div id="updateBanner" class="update-banner hidden">
+    <div class="ub-icon" id="ubIcon">⬆</div>
+    <div class="ub-body">
+      <div class="ub-title" id="ubTitle">កំណែថ្មីអាចប្រើបាន</div>
+      <div class="ub-msg" id="ubMsg">កំពុងពិនិត្យ...</div>
+      <div class="ub-progress-wrap hidden" id="ubProgressWrap">
+        <div class="ub-progress-bar">
+          <div class="ub-progress-fill" id="ubProgressFill"></div>
+        </div>
+        <div class="ub-progress-text" id="ubProgressText">0%</div>
+      </div>
+    </div>
+    <button class="ub-action" id="ubAction">ទាញយក</button>
+    <button class="ub-close" onclick="hideUpdateBanner()">✕</button>
+  </div>
+
+  <style>
+  .update-banner{
+    position:fixed;top:80px;right:24px;z-index:1000;
+    width:380px;padding:16px;border-radius:18px;
+    background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(168,85,247,.15));
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(34,211,238,.5);
+    box-shadow:0 20px 60px rgba(6,182,212,.35);
+    display:flex;gap:14px;align-items:flex-start;
+    transform:translateX(120%);transition:.5s cubic-bezier(.22,1,.36,1);
+  }
+  .update-banner.show{transform:translateX(0)}
+  .update-banner.hidden{display:none}
+  .ub-icon{
+    width:44px;height:44px;border-radius:14px;
+    background:linear-gradient(135deg,#06b6d4,#22d3ee);
+    display:grid;place-items:center;font-size:22px;flex-shrink:0;
+    animation:pulse 2s infinite;
+  }
+  .ub-body{flex:1;min-width:0}
+  .ub-title{font-weight:800;color:#67e8f9;font-size:14px;margin-bottom:4px}
+  .ub-msg{font-size:12px;color:#c4b5fd;line-height:1.4}
+  .ub-action{
+    padding:8px 16px;border-radius:10px;border:none;cursor:pointer;
+    background:linear-gradient(90deg,#06b6d4,#22d3ee);
+    color:#001a22;font-weight:800;font-size:12px;font-family:inherit;
+    box-shadow:0 0 20px rgba(34,211,238,.6);transition:.3s;
+  }
+  .ub-action:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(34,211,238,.9)}
+  .ub-action:disabled{opacity:.5;cursor:not-allowed}
+  .ub-close{
+    background:none;border:none;color:#94a3b8;
+    cursor:pointer;font-size:16px;padding:4px;
+  }
+  .ub-progress-wrap{margin-top:10px}
+  .ub-progress-bar{
+    height:6px;background:rgba(0,0,0,.4);border-radius:10px;overflow:hidden;
+  }
+  .ub-progress-fill{
+    height:100%;width:0;border-radius:10px;
+    background:linear-gradient(90deg,#06b6d4,#a855f7,#84cc16);
+    background-size:200% 100%;animation:barShift 2s linear infinite;
+    transition:width .3s;
+  }
+  .ub-progress-text{font-size:11px;color:#67e8f9;margin-top:4px;text-align:center}
+  </style>
+
+  <script>
+  const K = window.kemsinin;
+  let updateState = 'idle';
+
+  function toast(msg) {
+    console.log('[Toast]:', msg);
+  }
+
+  async function initUpdater() {
+    if (!K?.updater) return;
+
+    const ver = await K.updater.getVersion();
+    console.log('KEMSININ DUBBER v' + ver);
+
+    K.updater.onStatus(d => handleUpdateStatus(d));
+    K.updater.onProgress(p => handleUpdateProgress(p));
+  }
+
+  function handleUpdateStatus(d) {
+    const banner = document.getElementById('updateBanner');
+    const title  = document.getElementById('ubTitle');
+    const msg    = document.getElementById('ubMsg');
+    const action = document.getElementById('ubAction');
+    const pw     = document.getElementById('ubProgressWrap');
+
+    switch (d.status) {
+
+      case 'checking':
+        updateState = 'checking';
+        title.textContent = '🔍 កំពុងពិនិត្យកំណែថ្មី';
+        msg.textContent = 'សូមរង់ចាំមួយសន្ទុះ...';
+        action.style.display = 'none';
+        pw.classList.add('hidden');
+        banner.classList.remove('hidden');
+        setTimeout(() => banner.classList.add('show'), 30);
+        break;
+
+      case 'available':
+        updateState = 'available';
+        title.textContent = `🎉 កំណែថ្មី v${d.version}`;
+        msg.textContent = d.releaseNotes || 'កំណែថ្មីបានត្រៀមរួចរាល់ហើយ';
+        action.textContent = '⬇ ទាញយក';
+        action.style.display = 'block';
+        action.disabled = false;
+        pw.classList.add('hidden');
+        banner.classList.remove('hidden');
+        setTimeout(() => banner.classList.add('show'), 30);
+        toast(`⬆ កំណែថ្មី v${d.version} អាចប្រើបាន`);
+        break;
+
+      case 'not-available':
+        updateState = 'latest';
+        action.style.display = 'none';
+        pw.classList.add('hidden');
+        setTimeout(() => hideUpdateBanner(), 1500);
+        break;
+
+      case 'downloaded':
+        updateState = 'ready';
+        title.textContent = '✅ ទាញយករួចរាល់';
+        msg.textContent = `កំណែ v${d.version} ត្រៀមដំឡើង`;
+        action.textContent = '🔁 ដំឡើងឥឡូវ';
+        action.style.display = 'block';
+        action.disabled = false;
+        pw.classList.add('hidden');
+        banner.classList.remove('hidden');
+        banner.classList.add('show');
+        break;
+
+      case 'error':
+        updateState = 'error';
+        title.textContent = '❌ កំហុសអាប់ដេត';
+        msg.textContent = d.message;
+        action.textContent = 'ព្យាយាមម្តងទៀត';
+        action.style.display = 'block';
+        action.disabled = false;
+        break;
+    }
+  }
+
+  function handleUpdateProgress(p) {
+    const pw     = document.getElementById('ubProgressWrap');
+    const fill   = document.getElementById('ubProgressFill');
+    const text   = document.getElementById('ubProgressText');
+    const action = document.getElementById('ubAction');
+
+    pw.classList.remove('hidden');
+    fill.style.width = p.percent.toFixed(1) + '%';
+
+    const mb = p.bytesPerSecond / 1024 / 1024;
+    text.textContent = `${p.percent.toFixed(1)}% · ${mb.toFixed(2)} MB/s`;
+    action.disabled = true;
+    action.textContent = '⬇ កំពុងទាញយក...';
+  }
+
+  document.getElementById('ubAction').onclick = async () => {
+    const action = document.getElementById('ubAction');
+    if (updateState === 'available') {
+      action.disabled = true;
+      action.textContent = '⬇ កំពុងទាញយក...';
+      await K.updater.download();
+    } else if (updateState === 'ready') {
+      K.updater.install();
+    } else if (updateState === 'error') {
+      const r = await K.updater.check();
+      if (r.ok) handleUpdateStatus({status:'available', version:r.version});
+    }
+  };
+
+  function hideUpdateBanner() {
+    const b = document.getElementById('updateBanner');
+    b.classList.remove('show');
+    setTimeout(() => b.classList.add('hidden'), 500);
+  }
+
+  <!-- ============ BATCH DUBBING MODAL ============ -->
+  <div id="batchModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">
+          <span class="dot"></span> 🌍 បំពងច្រើនភាសាព្រមគ្នា (Batch Mode)
+        </div>
+        <button class="modal-close" onclick="closeBatch()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="batch-video-info" id="batchVideoInfo">
+          <span class="bvi-icon">🎬</span>
+          <span class="bvi-name" id="bviName">សូមជ្រើសរើសវីដេអូជាមុន</span>
+        </div>
+
+        <div class="batch-section">
+          <div class="batch-label">🎙️ សំឡេង</div>
+          <div class="voice-toggle">
+            <button class="vt-btn active" data-voice="female" onclick="pickGender('female',this)">
+              ♀ ស្ត្រី
+            </button>
+            <button class="vt-btn" data-voice="male" onclick="pickGender('male',this)">
+              ♂ បុរស
+            </button>
+          </div>
+        </div>
+
+        <div class="batch-section">
+          <div class="batch-label">
+            <span>🌐 ជ្រើសភាសា</span>
+            <span class="select-all-wrap">
+              <button class="mini-btn" onclick="selectAllLangs()" type="button">ជ្រើសទាំងអស់</button>
+              <button class="mini-btn" onclick="clearAllLangs()" type="button">សម្អាត</button>
+              <span id="langCount" style="color: var(--accent-cyan); font-weight: 700;">0</span> ជ្រើសរើស
+            </span>
+          </div>
+
+          <div class="lang-grid" id="langGrid"></div>
+        </div>
+
+        <div class="batch-progress-section hidden" id="batchProgressSection">
+          <div class="batch-label">
+            <span>⚡ ដំណើរការបំពង</span>
+            <span id="batchOverallText" style="margin-left:auto;font-size:12px;color:#67e8f9">0%</span>
+          </div>
+          <div class="batch-progress-bar">
+            <div class="batch-progress-fill" id="batchOverallFill"></div>
+          </div>
+
+          <div class="lang-progress-list" id="langProgressList"></div>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn-stop" onclick="cancelBatch()" id="batchCancelBtn" style="display:none" type="button">
+          ⏹ បញ្ឈប់
+        </button>
+        <button class="btn-main" id="batchStartBtn" onclick="startBatch()" style="flex:1" type="button">
+          🚀 ចាប់ផ្តើមបំពង
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Trigger Button -->
+  <button class="btn-batch" onclick="openBatch()" type="button">
+    🌍 បំពងច្រើនភាសា
+  </button>
+
+  <style>
+  /* ============ Batch Modal ============ */
+  .btn-batch{
+    position:fixed;bottom:24px;right:24px;z-index:100;
+    padding:16px 28px;border-radius:50px;border:none;cursor:pointer;
+    font-family:inherit;font-weight:900;font-size:15px;
+    background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);
+    background-size:200% 100%;color:#fff;
+    box-shadow:0 15px 40px rgba(168,85,247,.7);
+    transition:.3s;animation:glowPulse 2.5s ease infinite;
+  }
+  .btn-batch:hover{transform:translateY(-4px) scale(1.05);background-position:100% 0}
+  @keyframes glowPulse{
+    0%,100%{box-shadow:0 15px 40px rgba(168,85,247,.7)}
+    50%{box-shadow:0 15px 60px rgba(236,72,153,.9)}
+  }
+
+  .modal-overlay{
+    position:fixed;inset:0;z-index:999;
+    background:rgba(0,0,0,.75);backdrop-filter:blur(10px);
+    display:grid;place-items:center;
+    animation:fadeIn .3s;
+  }
+  .modal-overlay.hidden{display:none}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  .modal{
+    width:min(820px,92vw);max-height:88vh;
+    background:linear-gradient(135deg,#12122a,#1a1a3a);
+    border-radius:22px;border:1px solid rgba(168,85,247,.35);
+    box-shadow:0 40px 100px rgba(168,85,247,.4);
+    display:flex;flex-direction:column;overflow:hidden;
+    animation:slideUp .4s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+
+  .modal-head{
+    padding:20px 24px;display:flex;align-items:center;gap:12px;
+    border-bottom:1px solid rgba(168,85,247,.25);
+    background:rgba(168,85,247,.08);
+  }
+  .modal-title{
+    flex:1;font-weight:800;font-size:17px;color:#e9d5ff;
+    display:flex;align-items:center;gap:12px;
+  }
+  .modal-close{
+    width:36px;height:36px;border-radius:50%;cursor:pointer;
+    background:rgba(239,68,68,.15);border:1px solid #ef4444;
+    color:#fca5a5;font-size:16px;transition:.3s;
+  }
+  .modal-close:hover{background:rgba(239,68,68,.3);transform:rotate(90deg)}
+
+  .modal-body{
+    padding:22px 24px;overflow-y:auto;flex:1;
+  }
+  .modal-body::-webkit-scrollbar{width:6px}
+  .modal-body::-webkit-scrollbar-thumb{background:#a855f7;border-radius:3px}
+
+  .batch-video-info{
+    padding:14px;border-radius:14px;margin-bottom:18px;
+    background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);
+    display:flex;align-items:center;gap:12px;
+  }
+  .bvi-icon{font-size:22px}
+  .bvi-name{color:#a5f3fc;font-size:13px;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .batch-section{margin-bottom:22px}
+  .batch-label{
+    display:flex;align-items:center;gap:10px;
+    font-weight:700;font-size:14px;color:#c4b5fd;margin-bottom:12px;
+  }
+  .select-all-wrap{
+    margin-left:auto;display:flex;align-items:center;gap:8px;
+    font-size:12px;color:#94a3b8;font-weight:400;
+  }
+  .mini-btn{
+    padding:4px 10px;border-radius:8px;cursor:pointer;
+    background:rgba(168,85,247,.15);border:1px solid #a855f7;
+    color:#e9d5ff;font-family:inherit;font-size:11px;font-weight:600;
+    transition:.3s;
+  }
+  .mini-btn:hover{background:rgba(168,85,247,.35)}
+
+  .voice-toggle{display:flex;gap:8px}
+  .vt-btn{
+    flex:1;padding:12px;border-radius:12px;cursor:pointer;font-family:inherit;
+    font-weight:700;font-size:13px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.3);
+    color:#94a3b8;transition:.3s;
+  }
+  .vt-btn:hover{border-color:#a855f7;color:#e9d5ff}
+  .vt-btn.active{
+    background:linear-gradient(135deg,#a855f7,#ec4899);
+    color:#fff;border-color:transparent;
+    box-shadow:0 0 20px rgba(168,85,247,.6);
+  }
+
+  .lang-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:10px;
+  }
+  .lang-chip{
+    padding:12px;border-radius:12px;cursor:pointer;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(168,85,247,.2);
+    display:flex;align-items:center;gap:10px;
+    transition:.3s;user-select:none;
+  }
+  .lang-chip:hover{
+    border-color:#a855f7;background:rgba(168,85,247,.1);
+    transform:translateY(-2px);
+  }
+  .lang-chip.selected{
+    background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(6,182,212,.3));
+    border-color:#22d3ee;
+    box-shadow:0 0 20px rgba(34,211,238,.5);
+  }
+  .lang-chip .lflag{font-size:20px}
+  .lang-chip .lname{font-size:13px;font-weight:600;color:#e9d5ff}
+  .lang-chip .lcode{font-size:10px;color:#94a3b8;font-family:monospace}
+  .lang-chip.selected .check{
+    margin-left:auto;color:#22d3ee;font-weight:900;
+  }
+
+  /* Progress */
+  .batch-progress-section.hidden{display:none}
+  .batch-progress-bar{
+    height:10px;border-radius:10px;overflow:hidden;
+    background:rgba(0,0,0,.4);margin-bottom:14px;
+  }
+  .batch-progress-fill{
+    height:100%;width:0;border-radius:10px;
+    background:linear-gradient(90deg,#a855f7,#06b6d4,#84cc16);
+    background-size:200% 100%;animation:barShift 1.5s linear infinite;
+    transition:width .4s ease;
+  }
+
+  .lang-progress-list{display:flex;flex-direction:column;gap:10px}
+  .lang-progress-row{
+    padding:12px 14px;border-radius:12px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(168,85,247,.15);
+    display:flex;align-items:center;gap:12px;
+    transition:.4s;
+  }
+  .lang-progress-row.active{
+    border-color:#22d3ee;
+    background:rgba(6,182,212,.1);
+    box-shadow:0 0 25px rgba(6,182,212,.35);
+  }
+  .lang-progress-row.done{
+    border-color:#84cc16;
+    background:rgba(132,204,22,.1);
+  }
+  .lang-progress-row.error{
+    border-color:#ef4444;
+    background:rgba(239,68,68,.1);
+  }
+  .lpr-flag{font-size:22px;flex-shrink:0}
+  .lpr-body{flex:1;min-width:0}
+  .lpr-top{display:flex;justify-content:space-between;margin-bottom:6px}
+  .lpr-name{font-weight:700;font-size:13px;color:#e9d5ff}
+  .lpr-pct{font-size:12px;color:#67e8f9;font-family:monospace}
+  .lpr-msg{font-size:11px;color:#94a3b8;margin-bottom:6px}
+  .lpr-bar{
+    height:5px;border-radius:5px;overflow:hidden;
+    background:rgba(0,0,0,.4);
+  }
+  .lpr-fill{
+    height:100%;width:0;border-radius:5px;
+    background:linear-gradient(90deg,#06b6d4,#84cc16);
+    transition:width .3s;
+  }
+  .lpr-action{
+    padding:6px 12px;border-radius:8px;cursor:pointer;border:none;
+    font-family:inherit;font-size:11px;font-weight:700;
+    background:linear-gradient(90deg,#84cc16,#22d3ee);
+    color:#001a22;transition:.3s;
+    text-decoration:none;display:inline-flex;align-items:center;gap:4px;
+  }
+  .lpr-action:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(34,211,238,.6)}
+
+  .modal-foot{
+    padding:16px 24px;display:flex;gap:12px;align-items:center;
+    border-top:1px solid rgba(168,85,247,.25);
+    background:rgba(0,0,0,.25);
+  }
+  .btn-main {
+    padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    color: #fff; font-weight: 800; font-size: 13px; font-family: inherit;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); transition: .3s;
+  }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(236, 72, 153, 0.8); }
+  .btn-main:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-stop {
+    padding: 12px 18px; border-radius: 12px; border: none; cursor: pointer;
+    background: #ef4444; color: #fff; font-weight: 800; font-size: 13px;
+  }
+  </style>
+
+  <script>
+  /* ============================================
+     KEMSININ — Multi-Language Batch Dubbing
+     ============================================ */
+
+  const API = typeof API_BASE !== 'undefined' ? API_BASE : 'http://127.0.0.1:8000';
+  let LANGS = {};
+  let selectedLangs = new Set();
+  let batchGender = 'female';
+  let currentBatchJob = null;
+  let batchWS = null;
+
+  // Safe toast notifier
+  if (typeof toast !== 'function') {
+    function toast(msg, isErr=false) {
+      console.log(`[Toast ${isErr ? 'Error' : 'Info'}]:`, msg);
+      const bvi = document.getElementById('bviName');
+      if (bvi && isErr) {
+        bvi.textContent = msg;
+        bvi.style.color = '#f87171';
+      }
+    }
+  }
+
+  // ============ Load languages from backend ============
+  async function loadLanguages() {
+    try {
+      const r = await fetch(`${API}/languages`);
+      LANGS = await r.json();
+      renderLangGrid();
+    } catch(e) {
+      // Fallback hardcoded
+      LANGS = {
+        km: {name:'ខ្មែរ', flag:'🇰🇭'},
+        en: {name:'English', flag:'🇺🇸'},
+        zh: {name:'中文', flag:'🇨🇳'},
+        th: {name:'ไทย', flag:'🇹🇭'},
+        vi: {name:'Tiếng Việt', flag:'🇻🇳'},
+        ja: {name:'日本語', flag:'🇯🇵'},
+        ko: {name:'한국어', flag:'🇰🇷'},
+        fr: {name:'Français', flag:'🇫🇷'},
+        es: {name:'Español', flag:'🇪🇸'},
+        de: {name:'Deutsch', flag:'🇩🇪'},
+        id: {name:'Indonesia', flag:'🇮🇩'},
+        hi: {name:'हिन्दी', flag:'🇮🇳'},
+      };
+      renderLangGrid();
+    }
+  }
+
+  // ============ Render language chips ============
+  function renderLangGrid() {
+    const grid = document.getElementById('langGrid');
+    if (!grid) return;
+    grid.innerHTML = Object.entries(LANGS).map(([code, info]) => `
+      <div class="lang-chip ${selectedLangs.has(code) ? 'selected' : ''}" data-lang="${code}" onclick="toggleLang('${code}', this)">
+        <span class="lflag">${info.flag}</span>
+        <div>
+          <div class="lname">${info.name}</div>
+          <div class="lcode">${code.toUpperCase()}</div>
+        </div>
+        <span class="check" style="display:${selectedLangs.has(code) ? 'inline' : 'none'}">✓</span>
+      </div>
+    `).join('');
+  }
+
+  function toggleLang(code, el) {
+    if (selectedLangs.has(code)) {
+      selectedLangs.delete(code);
+      el.classList.remove('selected');
+      const chk = el.querySelector('.check');
+      if (chk) chk.style.display = 'none';
+    } else {
+      selectedLangs.add(code);
+      el.classList.add('selected');
+      const chk = el.querySelector('.check');
+      if (chk) chk.style.display = 'inline';
+    }
+    updateLangCount();
+  }
+
+  function selectAllLangs() {
+    document.querySelectorAll('.lang-chip').forEach(el => {
+      selectedLangs.add(el.dataset.lang);
+      el.classList.add('selected');
+      const chk = el.querySelector('.check');
+      if (chk) chk.style.display = 'inline';
+    });
+    updateLangCount();
+  }
+
+  function clearAllLangs() {
+    selectedLangs.clear();
+    document.querySelectorAll('.lang-chip').forEach(el => {
+      el.classList.remove('selected');
+      const chk = el.querySelector('.check');
+      if (chk) chk.style.display = 'none';
+    });
+    updateLangCount();
+  }
+
+  function updateLangCount() {
+    const countEl = document.getElementById('langCount');
+    if (countEl) countEl.textContent = selectedLangs.size;
+  }
+
+  // ============ Gender ============
+  function pickGender(g, el) {
+    batchGender = g;
+    document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+  }
+
+  // ============ Open/Close ============
+  function openBatch() {
+    document.getElementById('batchModal').classList.remove('hidden');
+    loadLanguages();
+
+    // Update video info
+    const vid = (typeof currentVideoPath !== 'undefined' && currentVideoPath) ? currentVideoPath : null;
+    const info = document.getElementById('batchVideoInfo');
+    if (info) {
+      const nameEl = info.querySelector('.bvi-name') || document.getElementById('bviName');
+      if (nameEl) {
+        if (vid) {
+          nameEl.textContent = vid.split(/[\\/]/).pop();
+          nameEl.style.color = '#a5f3fc';
+        } else {
+          nameEl.textContent = '⚠️ សូមជ្រើសរើសវីដេអូជាមុន';
+          nameEl.style.color = '#f87171';
+        }
+      }
+    }
+  }
+
+  function closeBatch() {
+    if (batchWS) {
+      batchWS.close();
+      batchWS = null;
+    }
+    document.getElementById('batchModal').classList.add('hidden');
+    document.getElementById('batchProgressSection').classList.add('hidden');
+    document.getElementById('batchStartBtn').style.display = 'flex';
+    document.getElementById('batchCancelBtn').style.display = 'none';
+  }
+
+  // ============ START BATCH ============
+  async function startBatch() {
+    const vid = (typeof currentVideoPath !== 'undefined' && currentVideoPath) ? currentVideoPath : null;
+    if (!vid) return toast('⚠️ សូមជ្រើសរើសវីដេអូ', true);
+    if (selectedLangs.size === 0) return toast('⚠️ សូមជ្រើសភាសា', true);
+
+    const langs = Array.from(selectedLangs);
+
+    // Show progress section
+    document.getElementById('batchProgressSection').classList.remove('hidden');
+    document.getElementById('batchStartBtn').style.display = 'none';
+    document.getElementById('batchCancelBtn').style.display = 'block';
+
+    // Build lang progress rows
+    const list = document.getElementById('langProgressList');
+    list.innerHTML = langs.map(code => `
+      <div class="lang-progress-row" id="lpr-${code}">
+        <span class="lpr-flag">${LANGS[code]?.flag || '🌐'}</span>
+        <div class="lpr-body">
+          <div class="lpr-top">
+            <span class="lpr-name">${LANGS[code]?.name || code} (${code.toUpperCase()})</span>
+            <span class="lpr-pct" id="lpr-pct-${code}">0%</span>
+          </div>
+          <div class="lpr-msg" id="lpr-msg-${code}">កំពុងរង់ចាំ...</div>
+          <div class="lpr-bar">
+            <div class="lpr-fill" id="lpr-fill-${code}"></div>
+          </div>
+        </div>
+        <button class="lpr-action" id="lpr-act-${code}" style="display:none">⬇ ទាញយក</button>
+      </div>
+    `).join('');
+
+    // Send to backend
+    try {
+      const r = await fetch(`${API}/batch/start`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          video: vid,
+          src_lang: 'auto',
+          target_langs: langs,
+          voice_gender: batchGender
+        })
+      });
+      const data = await r.json();
+      currentBatchJob = data.job_id;
+      connectBatchWS(data.job_id);
+      toast(`🚀 ចាប់ផ្តើមបំពងចំនួន ${langs.length} ភាសា`);
+    } catch(e) {
+      toast('❌ មិនអាចចាប់ផ្តើម: ' + e.message, true);
+      document.getElementById('batchStartBtn').style.display = 'flex';
+      document.getElementById('batchCancelBtn').style.display = 'none';
+    }
+  }
+
+  // ============ CANCEL ============
+  async function cancelBatch() {
+    if (!currentBatchJob) return;
+    try {
+      await fetch(`${API}/batch/cancel/${currentBatchJob}`, {method:'POST'});
+    } catch(e) {}
+    toast('⏹ បានបញ្ឈប់');
+    if (batchWS) {
+      batchWS.close();
+      batchWS = null;
+    }
+    document.getElementById('batchStartBtn').style.display = 'flex';
+    document.getElementById('batchCancelBtn').style.display = 'none';
+  }
+
+  // ============ WebSocket ============
+  function connectBatchWS(jobId) {
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.port === "8000" || window.location.port === "3000"
+      ? window.location.host
+      : "127.0.0.1:8000";
+    const url = `${wsProtocol}//${wsHost}/ws/${jobId}`;
+    
+    batchWS = new WebSocket(url);
+
+    batchWS.onmessage = e => {
+      try {
+        const m = JSON.parse(e.data);
+        handleBatchMsg(m);
+      } catch(err) {
+        console.log('[Batch WS msg]', e.data);
+      }
+    };
+    batchWS.onerror = () => toast('❌ WebSocket error', true);
+  }
+
+  function handleBatchMsg(m) {
+    const step = m.step;
+    const pct  = m.percent || 0;
+
+    // Overall progress
+    const overallFill = document.getElementById('batchOverallFill');
+    const overallText = document.getElementById('batchOverallText');
+    if (overallFill) overallFill.style.width = pct + '%';
+    if (overallText) overallText.textContent = pct + '%';
+
+    // Init STT
+    if (step === 'stt' || step === 'stt_done') {
+      setStatusAll(m.message || '⏳ កំពុងស្រង់សំឡេងជាមួយ Whisper...');
+      return;
+    }
+
+    // Language-specific
+    if (step && step.startsWith('lang:')) {
+      const lang = m.lang;
+      const row = document.getElementById(`lpr-${lang}`);
+      const fill = document.getElementById(`lpr-fill-${lang}`);
+      const pctEl = document.getElementById(`lpr-pct-${lang}`);
+      const msgEl = document.getElementById(`lpr-msg-${lang}`);
+      const act = document.getElementById(`lpr-act-${lang}`);
+
+      if (!row) return;
+
+      row.classList.add('active');
+      if (fill) fill.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+      if (msgEl) msgEl.textContent = m.message;
+
+      if (m.done && m.path) {
+        row.classList.remove('active');
+        row.classList.add('done');
+        if (fill) fill.style.width = '100%';
+        if (pctEl) pctEl.textContent = '100%';
+
+        if (act) {
+          act.style.display = 'inline-flex';
+          act.onclick = () => downloadOutput(lang, m.path);
+        }
+      }
+      return;
+    }
+
+    // Done all
+    if (step === 'done') {
+      document.getElementById('batchStartBtn').style.display = 'flex';
+      document.getElementById('batchCancelBtn').style.display = 'none';
+      toast('🎉 បំពងគ្រប់ភាសារួចរាល់!');
+      return;
+    }
+
+    if (step === 'error') {
+      toast(m.message, true);
+      document.getElementById('batchStartBtn').style.display = 'flex';
+      document.getElementById('batchCancelBtn').style.display = 'none';
+    }
+  }
+
+  function setStatusAll(msg) {
+    document.querySelectorAll('.lpr-msg').forEach(el => el.textContent = msg);
+  }
+
+  // ============ Download ============
+  function downloadOutput(lang, path) {
+    const url = `${API}/file?p=${encodeURIComponent(path)}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kemsinin_${lang}.mp4`;
+    a.click();
+    toast(`⬇ ទាញយក ${LANGS[lang]?.name || lang}`);
+  }
+
+  // ============ Init ============
+  loadLanguages();
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+websockets
+requests
+python-multipart
+openai-whisper
+torch
+torchaudio
+deep-translator
+gTTS
+edge-tts
+ffmpeg-python
+pydub
+imageio-ffmpeg

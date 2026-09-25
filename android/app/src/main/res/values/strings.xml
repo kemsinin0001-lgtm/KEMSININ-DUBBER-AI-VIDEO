@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KEMSININ DUBBER</string>
+    <string name="title_activity_main">KEMSININ DUBBER</string>
+    <string name="package_name">com.kemsinin.dubber</string>
+    <string name="custom_url_scheme">com.kemsinin.dubber</string>
+</resources>

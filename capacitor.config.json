@@ -1,0 +1,10 @@
+{
+  "appId": "com.kemsinin.dubber",
+  "appName": "KEMSININ DUBBER",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http"
+  }
+}
